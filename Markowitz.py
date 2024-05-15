@@ -66,7 +66,10 @@ class EqualWeightPortfolio:
         """
         TODO: Complete Task 1 Below
         """
-
+        num_assets = len(df.columns)-1
+        equal_weight = 1 / num_assets
+        self.portfolio_weights.loc[:] = equal_weight
+        self.portfolio_weights.loc[:, 'SPY'] = 0
         """
         TODO: Complete Task 1 Above
         """
@@ -93,7 +96,6 @@ class EqualWeightPortfolio:
             self.calculate_portfolio_returns()
 
         return self.portfolio_weights, self.portfolio_returns
-
 
 """
 Problem 2:
