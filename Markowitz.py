@@ -119,7 +119,28 @@ class RiskParityPortfolio:
         """
         TODO: Complete Task 2 Below
         """
-
+        # df_returns_ = df_returns.copy()
+        # std = df_returns.std()
+        # inv_std = 1 / std
+        # inv_std_sum = inv_std.iloc[1:].sum()
+        # for asset in assets:
+        #     self.portfolio_weights.loc[:,asset] = inv_std[asset]/inv_std_sum
+        # self.portfolio_weights.loc[:, 'SPY'] = 0
+        std = 1/(df_returns.rolling(window=self.lookback).std())
+        # std = (df_returns.rolling(window=self.lookback).std())
+        std = std.iloc[:,1:]
+        std = std.fillna(0)
+        # print("std",std)
+        for i,row in std.iterrows():
+            sum = row.sum()
+            # if str(i)=="2019-03-14 00:00:00" or str(i)=="2019-03-15 00:00:00" or str(i)=="2019-03-17 00:00:00" or str(i)=="2019-03-18 00:00:00":
+            #     print(i,sum,row)
+            if sum == 0:
+                self.portfolio_weights.loc[i,:] = 0
+                continue
+            for asset in assets:
+                self.portfolio_weights.loc[i,asset] = (row[asset])/sum
+        self.portfolio_weights = self.portfolio_weights.shift(1)
         """
         TODO: Complete Task 2 Above
         """
@@ -195,7 +216,13 @@ class MeanVariancePortfolio:
                 # Sample Code: Initialize Decision w and the Objective
                 # NOTE: You can modify the following code
                 w = model.addMVar(n, name="w", ub=1)
-                model.setObjective(w.sum(), gp.GRB.MAXIMIZE)
+
+                wTmu = mu @ w
+                wTsigmaw = w @ Sigma @ w
+                expr = wTmu-(gamma/2)*wTsigmaw
+
+                model.setObjective(expr, gp.GRB.MAXIMIZE)
+                model.addConstr(w.sum() == 1)
 
                 """
                 TODO: Complete Task 3 Below
@@ -370,6 +397,11 @@ class AssignmentJudge:
             if (
                 df1[column].dtype.kind in "bifc" and df2[column].dtype.kind in "bifc"
             ):  # Check only numeric types
+                # for i,row in df1.iterrows():
+                #     a = df1.loc[i,column]
+                #     b = df2.loc[i,column]
+                #     if (abs(a - b) > (tolerance + 1e-05 * abs(b))):
+                #         print(column,i,df1.loc[i,column],df2.loc[i,column])
                 if not np.isclose(df1[column], df2[column], atol=tolerance).all():
                     return False
             else:
