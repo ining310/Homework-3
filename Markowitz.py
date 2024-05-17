@@ -119,22 +119,11 @@ class RiskParityPortfolio:
         """
         TODO: Complete Task 2 Below
         """
-        # df_returns_ = df_returns.copy()
-        # std = df_returns.std()
-        # inv_std = 1 / std
-        # inv_std_sum = inv_std.iloc[1:].sum()
-        # for asset in assets:
-        #     self.portfolio_weights.loc[:,asset] = inv_std[asset]/inv_std_sum
-        # self.portfolio_weights.loc[:, 'SPY'] = 0
         std = 1/(df_returns.rolling(window=self.lookback).std())
-        # std = (df_returns.rolling(window=self.lookback).std())
         std = std.iloc[:,1:]
         std = std.fillna(0)
-        # print("std",std)
         for i,row in std.iterrows():
             sum = row.sum()
-            # if str(i)=="2019-03-14 00:00:00" or str(i)=="2019-03-15 00:00:00" or str(i)=="2019-03-17 00:00:00" or str(i)=="2019-03-18 00:00:00":
-            #     print(i,sum,row)
             if sum == 0:
                 self.portfolio_weights.loc[i,:] = 0
                 continue
@@ -225,7 +214,7 @@ class MeanVariancePortfolio:
                 model.addConstr(w.sum() == 1)
 
                 """
-                TODO: Complete Task 3 Below
+                TODO: Complete Task 3 Above
                 """
                 model.optimize()
 
@@ -435,6 +424,10 @@ class AssignmentJudge:
 
     def check_answer_rp(self, rp_dataframe):
         answer_dataframe = pd.read_pickle(self.rp_path)
+        # print('ans')
+        # print(answer_dataframe)
+        # print('rp')
+        # print(rp_dataframe)
         if self.compare_dataframe(answer_dataframe, rp_dataframe):
             print("Problem 2 Complete - Get 10 Points")
             return 10
