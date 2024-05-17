@@ -119,17 +119,9 @@ class RiskParityPortfolio:
         """
         TODO: Complete Task 2 Below
         """
-        std = 1/(df_returns.rolling(window=self.lookback).std())
-        std = std.iloc[:,1:]
-        std = std.fillna(0)
-        for i,row in std.iterrows():
-            sum = row.sum()
-            if sum == 0:
-                self.portfolio_weights.loc[i,:] = 0
-                continue
-            for asset in assets:
-                self.portfolio_weights.loc[i,asset] = (row[asset])/sum
-        self.portfolio_weights = self.portfolio_weights.shift(1)
+        for i in range(self.lookback + 1, len(df)):
+            inverse_std = 1/df_returns.copy()[assets].iloc[i - self.lookback : i].std()
+            self.portfolio_weights.loc[df.index[i], assets] = inverse_std/inverse_std.sum()
         """
         TODO: Complete Task 2 Above
         """
